@@ -3,7 +3,7 @@ OUTDIR_KERAS = ../keras
 
 message:
 	@echo "---------------------------------------------------------------------------------------"
-	@echo "                               For Ubuntu 16.04.2 LST                                  "
+	@echo "                               For Ubuntu 14.04.5 LST                                  "
 	@echo "---------------------------------------------------------------------------------------"
 	@echo "step1 (== basic blacklist texton)"
 	@echo "step2 (== nvidia-driver-latest)"
@@ -45,9 +45,8 @@ blacklist:
 	sudo update-initramfs -u
 
 texton:
-	sudo grep -l 'quiet splash' /etc/default/grub | sudo xargs sed -i.bak -e 's/quiet splash/quiet text/g'
+	sudo grep -l 'splash' /etc/default/grub | xargs sed -i.bak -e 's/splash/splash text/g'
 	sudo update-grub
-	sudo systemctl set-default multi-user.target
 	sudo reboot
 
 nvidia-driver-latest: nvidia-driver-381
@@ -81,9 +80,8 @@ cudnn5.1-for-cuda8.0:
 	sudo ldconfig
 
 textoff:
-	sudo grep -l 'quiet text' /etc/default/grub | sudo xargs sed -i.bak -e 's/quiet text/quiet splash/g'
+	sudo grep -l 'splash text' /etc/default/grub | xargs sed -i.bak -e 's/splash text/splash/g'
 	sudo update-grub
-	sudo systemctl set-default graphical.target
 	sudo reboot
 
 
