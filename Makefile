@@ -76,10 +76,10 @@ echo-cuda8.0:
 	echo "export LD_LIBRARY_PATH=/usr/local/cuda-8.0/lib64:\$$LD_LIBRARY_PATH"  >> ~/.bashrc
 
 cudnn5.1-for-cuda8.0:
-	gpg dnn-cuda8.0-v5.1.tgz.gpg
-	md5sum --check dnn-cuda8.0-v5.1.tgz.md5sum
+	#gpg dnn-cuda8.0-v5.1.tgz.gpg
+	#md5sum --check dnn-cuda8.0-v5.1.tgz.md5sum
 	tar xzvf dnn-cuda8.0-v5.1.tgz
-	rm -f dnn-cuda8.0-v5.1.tgz
+	#rm -f dnn-cuda8.0-v5.1.tgz
 	sudo cp -a cuda/lib64/* /usr/local/cuda-8.0/lib64/
 	sudo cp -a cuda/include/* /usr/local/cuda-8.0/include/
 	sudo ldconfig
@@ -171,7 +171,7 @@ anaconda-pip:
 #                                       opencv install                                                #
 #=====================================================================================================#
 Dependences:
-	sudo apt install gcc g++ git libjpeg-dev libpng-dev libtiff5-dev libjasper-dev \
+	sudo apt install -y gcc g++ git libjpeg-dev libpng-dev libtiff5-dev libjasper-dev \
 	libavcodec-dev libavformat-dev libswscale-dev pkg-config cmake libgtk2.0-dev \
 	libeigen3-dev libtheora-dev libvorbis-dev libxvidcore-dev libx264-dev sphinx-common \
 	libtbb-dev yasm libfaac-dev libopencore-amrnb-dev libopencore-amrwb-dev libopenexr-dev \
@@ -180,8 +180,8 @@ Dependences:
 	@echo "Software are installed!"
 
 Opencv3.2:
-	#wget https://github.com/opencv/opencv/archive/3.2.0.zip
-	#unzip 3.2.0.zip
+	wget https://github.com/opencv/opencv/archive/3.2.0.zip
+	unzip 3.2.0.zip
 	cd opencv-3.2.0; mkdir release;	cd release; \
 	cmake -DBUILD_TIFF=ON -DBUILD_opencv_java=OFF -DWITH_CUDA=ON -DENABLE_AVX=ON -DWITH_OPENGL=ON -DWITH_OPENCL=ON -DWITH_IPP=ON -DWITH_TBB=ON -DWITH_EIGEN=ON -DWITH_V4L=ON -DWITH_VTK=OFF -DBUILD_TESTS=OFF -DBUILD_PERF_TESTS=OFF -DCMAKE_BUILD_TYPE=RELEASE -DBUILD_opencv_python2=OFF -DCMAKE_INSTALL_PREFIX=$$(python3 -c "import sys; print(sys.prefix)") -DPYTHON3_EXECUTABLE=$$(which python3) -DPYTHON3_INCLUDE_DIR=$$(python3 -c "from distutils.sysconfig import get_python_inc; print(get_python_inc())") -DPYTHON3_PACKAGES_PATH=$$(python3 -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())") ..
 
