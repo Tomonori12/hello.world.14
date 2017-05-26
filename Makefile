@@ -157,7 +157,7 @@ anaconda-install:
 	@echo "            type 'source ~/.bashrc' on your own                "
 	@echo "---------------------------------------------------------------"
 
-pip:
+anaconda-pip:
 	pip install keras
 	pip install tensorflow
 	pip install tensorflow-gpu
