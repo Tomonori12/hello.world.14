@@ -5,33 +5,50 @@ message:
 	@echo "---------------------------------------------------------------------------------------"
 	@echo "                               For Ubuntu 14.04.5 LST                                  "
 	@echo "---------------------------------------------------------------------------------------"
-	@echo "step1 (== basic blacklist texton)"
-	@echo "step2 (== nvidia-driver-latest)"
-	@echo "step3 (== cuda8.0 echo-cuda8.0)"
-	@echo "step4 (== cudnn5.1-for-cuda8.0)"
-	@echo "step5 (== anaconda-install)"
-	@echo "step6 (== textoff)"
-	@echo "step7 (== anaconda-pip)"
-	@echo "step8 (== Dependences Opencv3.2 CV-install)"
-	@echo "test  (== git-keras mnist_cnn opencv-test)"
+	@echo "step1        (== basic nocaps blacklist texton)"
+	@echo "step2        (== nvidia-driver-latest)"
+	@echo "step3*       (== gcc-5 g++-5)                     [if necessary]"
+	@echo "step3        (== cuda8.0 echo-cuda8.0)"
+	@echo "step4        (== cuda5.1-unpack cudnn5.1-for-cuda8.0)"
+	@echo "step5        (== anaconda-install)"
+	@echo "step6        (== textoff)"
+	@echo "step7        (== anaconda-pip)"
+	@echo "step8*       (== cmake-get cmake-install)          [version 2.8.12.2]"
+	@echo "step8        (== Dependences Opencv3.2-get)"
+	@echo "step9        (== Opencv3.2 CV-install)            [without CUDA]"
+	@echo "step9*       (== Opencv3.2-cuda CV-install)       [with CUDA]"
+	@echo "step10       (== bbox-py3 start-bbox)"
+	@echo "test         (== git-keras mnist_cnn opencv-test)"
 	@echo "cudnn-remove (== cudnn-remove)"
+	@echo "gc+5         (== gcc-5 g++-5)"
+	@echo "gc+4         (== gcc-4.8 g++4.8)"
 	@echo "---------------------------------------------------------------------------------------"
 
-step1: update blacklist texton
+step1: update nocaps blacklist texton
 step2: nvidia-driver-latest
+step3*: gcc-5 g++-5
 step3: cuda8.0 echo-cuda8.0
-step4: cudnn5.1-for-cuda8.0
+step4: cuda5.1-unpack cudnn5.1-for-cuda8.0
 step5: anaconda-install
 step6: textoff
 step7: anaconda-pip
-step8: Dependences Opencv3.2 CV-install
-test:  git-keras mnist_cnn opencv-test
+step8*:cmake-get cmake-install
+step8: Dependences Opencv3.2-get
+step9: Opencv3.2 CV-install
+step9*: Opencv3.2-cuda CV-install
+step10: bbox-py3 start-bbox
+test: git-keras mnist_cnn opencv-test
+gc+5: gcc-5 g++-5
+gc+4: gcc-4.8 g++-4.8
 
 #=====================================================================================================#
 #                                 Install Nvidia driver and software                                  #
 #=====================================================================================================#
 update:
 	sudo apt-get update
+
+nocaps:
+	sudo grep -l 'XKBOPTIONS=""' /etc/default/keyboard | sudo xargs sed -i.bak -e 's/XKBOPTIONS=""/XKBOPTIONS="ctrl:nocaps"/g'
 
 blacklist:
 	echo ""                           > test.txt
@@ -75,10 +92,14 @@ echo-cuda8.0:
 	echo "export PATH=/usr/local/cuda-8.0/bin:\$$PATH"                          >> ~/.bashrc
 	echo "export LD_LIBRARY_PATH=/usr/local/cuda-8.0/lib64:\$$LD_LIBRARY_PATH"  >> ~/.bashrc
 
-cudnn5.1-for-cuda8.0:
-	cat dnn-cuda8.0-v5.1.tgz.gpg-* > dnn-cuda8.0-v5.1.tgz.gpg
+cuda5.1-unpack:
+	git clone https://github.com/Tomonori12/dnn
+	cd dnn; cat dnn-cuda8.0-v5.1.tgz.gpg-* > dnn-cuda8.0-v5.1.tgz.gpg; \
+	mv dnn-cuda8.0-v5.1.tgz.gpg ../
 	gpg dnn-cuda8.0-v5.1.tgz.gpg
 	#md5sum --check dnn-cuda8.0-v5.1.tgz.md5sum
+
+cudnn5.1-for-cuda8.0:
 	tar xzvf dnn-cuda8.0-v5.1.tgz
 	rm -f dnn-cuda8.0-v5.1.tgz
 	sudo cp -a cuda/lib64/* /usr/local/cuda-8.0/lib64/
@@ -90,7 +111,6 @@ textoff:
 	sudo update-grub
 	sudo reboot
 
-
 #=====================================================================================================#
 #         "nvidia-quick-driver" is only when nvidia-driver doesn't work!!! Not recommended!!!         #
 #=====================================================================================================#
@@ -98,6 +118,30 @@ nvidia-quick-driver:
 	sudo add-apt-repository ppa:graphics-drivers/ppa
 	sudo apt-get update
 	sudo apt-get install -y nvidia-378
+
+
+#=====================================================================================================#
+#                        "gcc" and "g++" when it needs to be downgraded for cuda!!!                   #
+#=====================================================================================================#
+gcc-5:
+	sudo apt-get -y install gcc-5
+	sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-5 40
+	sudo update-alternatives --config gcc
+
+g++-5:
+	sudo apt-get -y install g++-5
+	sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-5 40
+	sudo update-alternatives --config g++
+
+gcc-4.8:
+	sudo apt-get -y install gcc-4.8
+	sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 50
+	sudo update-alternatives --config gcc
+
+g++-4.8:
+	sudo apt-get -y install g++-4.8
+	sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 50
+	sudo update-alternatives --config g++
 
 
 #=====================================================================================================#
@@ -169,29 +213,62 @@ anaconda-pip:
 	pip install tensorflow-gpu
 
 #=====================================================================================================#
+#                              cmake version 2.8.12.2 install                                         #
+#=====================================================================================================#
+cmake-get:
+	wget https://cmake.org/files/v2.8/cmake-2.8.12.2.tar.gz
+	tar xzvf cmake-2.8.12.2.tar.gz
+
+cmake-install:
+	cd cmake-2.8.12.2; ./bootstrap; make -j; sudo make install
+
+
+#=====================================================================================================#
 #                                       opencv install                                                #
+# (ref)  https://www.scivision.co/anaconda-python-opencv3/                                            #
 #=====================================================================================================#
 Dependences:
-	sudo apt install -y gcc g++ git libjpeg-dev libpng-dev libtiff5-dev libjasper-dev \
-	libavcodec-dev libavformat-dev libswscale-dev pkg-config cmake libgtk2.0-dev \
+	sudo apt install -y gcc g++ git cmake libjpeg-dev libpng-dev libtiff5-dev libjasper-dev \
+	libavcodec-dev libavformat-dev libswscale-dev pkg-config libgtk2.0-dev \
 	libeigen3-dev libtheora-dev libvorbis-dev libxvidcore-dev libx264-dev sphinx-common \
 	libtbb-dev yasm libfaac-dev libopencore-amrnb-dev libopencore-amrwb-dev libopenexr-dev \
 	libgstreamer-plugins-base1.0-dev libavcodec-dev libavutil-dev libavfilter-dev \
-	libavformat-dev libavresample-dev
+	libavformat-dev libavresample-dev libgphoto2-6 libgphoto2-dev libdc1394-22-dev libdc1394-22 libdc1394-utils \
+	build-essential
 	@echo "Software are installed!"
 
 Opencv3.2:
-	wget https://github.com/opencv/opencv/archive/3.2.0.zip
-	unzip 3.2.0.zip
+	wget https://raw.githubusercontent.com/opencv/opencv_3rdparty/81a676001ca8075ada498583e4166079e5744668/ippicv/ippicv_linux_20151201.tgz -P ./opencv-3.2.0/3rdparty/ippicv/downloads/linux-808b791a6eac9ed78d32a7666804320e
 	cd opencv-3.2.0; mkdir release;	cd release; \
-	cmake -DBUILD_TIFF=ON -DBUILD_opencv_java=OFF -DWITH_CUDA=ON -DENABLE_AVX=ON -DWITH_OPENGL=ON -DWITH_OPENCL=ON -DWITH_IPP=ON -DWITH_TBB=ON -DWITH_EIGEN=ON -DWITH_V4L=ON -DWITH_VTK=OFF -DBUILD_TESTS=OFF -DBUILD_PERF_TESTS=OFF -DCMAKE_BUILD_TYPE=RELEASE -DBUILD_opencv_python2=OFF -DCMAKE_INSTALL_PREFIX=$$(python3 -c "import sys; print(sys.prefix)") -DPYTHON3_EXECUTABLE=$$(which python3) -DPYTHON3_INCLUDE_DIR=$$(python3 -c "from distutils.sysconfig import get_python_inc; print(get_python_inc())") -DPYTHON3_PACKAGES_PATH=$$(python3 -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())") ..
+	time cmake -DBUILD_TIFF=ON -DBUILD_opencv_java=OFF -DWITH_CUDA=OFF -DENABLE_AVX=ON -DWITH_OPENGL=ON -DWITH_OPENCL=ON -DWITH_IPP=ON -DWITH_TBB=ON -DWITH_EIGEN=ON -DWITH_V4L=ON -DWITH_VTK=OFF -DBUILD_TESTS=OFF -DBUILD_PERF_TESTS=OFF -DCMAKE_BUILD_TYPE=RELEASE -DBUILD_opencv_python2=OFF -DCMAKE_INSTALL_PREFIX=$$(python3 -c "import sys; print(sys.prefix)") -DPYTHON3_EXECUTABLE=$$(which python3) -DPYTHON3_INCLUDE_DIR=$$(python3 -c "from distutils.sysconfig import get_python_inc; print(get_python_inc())") -DPYTHON3_PACKAGES_PATH=$$(python3 -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())") ..
+
+Opencv3.2-cuda:
+	wget https://raw.githubusercontent.com/opencv/opencv_3rdparty/81a676001ca8075ada498583e4166079e5744668/ippicv/ippicv_linux_20151201.tgz -P ./opencv-3.2.0/3rdparty/ippicv/downloads/linux-808b791a6eac9ed78d32a7666804320e
+	cd opencv-3.2.0; mkdir release;	cd release; \
+	time cmake -DBUILD_TIFF=ON -DBUILD_opencv_java=OFF -DWITH_CUDA=ON -DENABLE_AVX=ON -DWITH_OPENGL=ON -DWITH_OPENCL=ON -DWITH_TBB=ON -DWITH_EIGEN=ON -DWITH_V4L=ON -DWITH_VTK=OFF -DBUILD_TESTS=OFF -DBUILD_PERF_TESTS=OFF -DCMAKE_BUILD_TYPE=RELEASE -DBUILD_opencv_python2=OFF -DCMAKE_INSTALL_PREFIX=$$(python3 -c "import sys; print(sys.prefix)") -DPYTHON3_EXECUTABLE=$$(which python3) -DPYTHON3_INCLUDE_DIR=$$(python3 -c "from distutils.sysconfig import get_python_inc; print(get_python_inc())") -DPYTHON3_PACKAGES_PATH=$$(python3 -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())") ..
 
 CV-install:
 	cd opencv-3.2.0/release; \
-	make -j; \
-	make install
+	time make -j; \
+	time make install
 	@echo "OpenCV3.2.0 installed!"
 
+
+#=====================================================================================================#
+#                                       darknet install                                               #
+#              NVCC += -D_FORCE_INLINES                                                               #
+#=====================================================================================================#
+darkent:
+	git clone https://github.com/pjreddie/darknet
+
+#=====================================================================================================#
+#                                  bbox-label-tool install                                            #
+#=====================================================================================================#
+bbox-py3:
+	git clone https://github.com/Tomonori12/BBox-Label-Tool-Python3.x
+
+start-bbox:
+	cd BBox-Label-Tool-Python3.x; python3 main.py
 
 #=====================================================================================================#
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++#
@@ -213,4 +290,4 @@ opencv-test:
 	python ./test2.py
 
 clean:
-	rm -rf *.* *~
+rm -rf *.* *~
