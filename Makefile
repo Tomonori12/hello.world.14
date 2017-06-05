@@ -292,5 +292,5 @@ opencv-test:
 	python ./test1.py
 	python ./test2.py
 
-clean:https://github.com/opencv/opencv/archive/3.2.0.zip
+clean:
 	rm -rf *.* *~
