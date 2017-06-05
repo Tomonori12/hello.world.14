@@ -242,12 +242,10 @@ Opencv3.2-get:
 	unzip 3.2.0.zip
 
 Opencv3.2:
-	wget https://raw.githubusercontent.com/opencv/opencv_3rdparty/81a676001ca8075ada498583e4166079e5744668/ippicv/ippicv_linux_20151201.tgz -P ./opencv-3.2.0/3rdparty/ippicv/downloads/linux-808b791a6eac9ed78d32a7666804320e
 	cd opencv-3.2.0; mkdir release;	cd release; \
 	time cmake -DBUILD_TIFF=ON -DBUILD_opencv_java=OFF -DWITH_CUDA=OFF -DENABLE_AVX=ON -DWITH_OPENGL=ON -DWITH_OPENCL=ON -DWITH_IPP=ON -DWITH_TBB=ON -DWITH_EIGEN=ON -DWITH_V4L=ON -DWITH_VTK=OFF -DBUILD_TESTS=OFF -DBUILD_PERF_TESTS=OFF -DCMAKE_BUILD_TYPE=RELEASE -DBUILD_opencv_python2=OFF -DCMAKE_INSTALL_PREFIX=$$(python3 -c "import sys; print(sys.prefix)") -DPYTHON3_EXECUTABLE=$$(which python3) -DPYTHON3_INCLUDE_DIR=$$(python3 -c "from distutils.sysconfig import get_python_inc; print(get_python_inc())") -DPYTHON3_PACKAGES_PATH=$$(python3 -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())") ..
 
 Opencv3.2-cuda:
-	wget https://raw.githubusercontent.com/opencv/opencv_3rdparty/81a676001ca8075ada498583e4166079e5744668/ippicv/ippicv_linux_20151201.tgz -P ./opencv-3.2.0/3rdparty/ippicv/downloads/linux-808b791a6eac9ed78d32a7666804320e
 	cd opencv-3.2.0; mkdir release;	cd release; \
 	time cmake -DBUILD_TIFF=ON -DBUILD_opencv_java=OFF -DWITH_CUDA=ON -DENABLE_AVX=ON -DWITH_OPENGL=ON -DWITH_OPENCL=ON -DWITH_TBB=ON -DWITH_EIGEN=ON -DWITH_V4L=ON -DWITH_VTK=OFF -DBUILD_TESTS=OFF -DBUILD_PERF_TESTS=OFF -DCMAKE_BUILD_TYPE=RELEASE -DBUILD_opencv_python2=OFF -DCMAKE_INSTALL_PREFIX=$$(python3 -c "import sys; print(sys.prefix)") -DPYTHON3_EXECUTABLE=$$(which python3) -DPYTHON3_INCLUDE_DIR=$$(python3 -c "from distutils.sysconfig import get_python_inc; print(get_python_inc())") -DPYTHON3_PACKAGES_PATH=$$(python3 -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())") ..
 
@@ -264,6 +262,7 @@ CV-install:
 #=====================================================================================================#
 darkent:
 	git clone https://github.com/pjreddie/darknet
+	wget https://pjreddie.com/media/files/yolo.weights
 
 #=====================================================================================================#
 #                                  bbox-label-tool install                                            #
